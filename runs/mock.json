@@ -1,0 +1,120 @@
+{
+ "analyst": {
+  "output": {
+   "opportunities": [
+    {
+     "rank": 1,
+     "from_brand": "Little Oasis",
+     "to_brand": "Haven",
+     "headline": "Little Oasis shoppers are 2.28x as likely to shop Haven",
+     "evidence": [
+      "Affinity lift 2.28",
+      "Audience 2871"
+     ],
+     "why_it_matters": "Mock run (no AI call).",
+     "risks": [
+      "Mock output"
+     ],
+     "confidence": "medium"
+    },
+    {
+     "rank": 2,
+     "from_brand": "Pace",
+     "to_brand": "Volt",
+     "headline": "Pace shoppers are 2.18x as likely to shop Volt",
+     "evidence": [
+      "Affinity lift 2.18",
+      "Audience 4305"
+     ],
+     "why_it_matters": "Mock run (no AI call).",
+     "risks": [
+      "Mock output"
+     ],
+     "confidence": "medium"
+    },
+    {
+     "rank": 3,
+     "from_brand": "Mirage",
+     "to_brand": "Glow",
+     "headline": "Mirage shoppers are 2.08x as likely to shop Glow",
+     "evidence": [
+      "Affinity lift 2.08",
+      "Audience 6718"
+     ],
+     "why_it_matters": "Mock run (no AI call).",
+     "risks": [
+      "Mock output"
+     ],
+     "confidence": "medium"
+    }
+   ]
+  },
+  "trace": [],
+  "usage": {}
+ },
+ "strategist": [
+  {
+   "output": {
+    "from_brand": "Little Oasis",
+    "to_brand": "Haven",
+    "channel": "email",
+    "discount": 0.1,
+    "expected_incremental_gross_margin_aed": 2373.0,
+    "eligible_audience": 1758,
+    "control_group_share": 0.5,
+    "measurable": false,
+    "rationale": "Mock run (no AI call).",
+    "alternatives": [],
+    "message_en": "Hi {first_name}, discover Haven.",
+    "message_ar": "مرحباً {first_name}، اكتشف Haven."
+   },
+   "trace": [],
+   "usage": {}
+  },
+  {
+   "output": {
+    "from_brand": "Pace",
+    "to_brand": "Volt",
+    "channel": "email",
+    "discount": 0.0,
+    "expected_incremental_gross_margin_aed": 2761.0,
+    "eligible_audience": 2601,
+    "control_group_share": 0.5,
+    "measurable": false,
+    "rationale": "Mock run (no AI call).",
+    "alternatives": [],
+    "message_en": "Hi {first_name}, discover Volt.",
+    "message_ar": "مرحباً {first_name}، اكتشف Volt."
+   },
+   "trace": [],
+   "usage": {}
+  },
+  {
+   "output": {
+    "from_brand": "Mirage",
+    "to_brand": "Glow",
+    "channel": "email",
+    "discount": 0.1,
+    "expected_incremental_gross_margin_aed": 3800.0,
+    "eligible_audience": 4136,
+    "control_group_share": 0.4,
+    "measurable": true,
+    "rationale": "Mock run (no AI call).",
+    "alternatives": [],
+    "message_en": "Hi {first_name}, discover Glow.",
+    "message_ar": "مرحباً {first_name}، اكتشف Glow."
+   },
+   "trace": [],
+   "usage": {}
+  }
+ ],
+ "meta": {
+  "created": "2026-11-07T23:09:45",
+  "model": "mock",
+  "seconds": 1.5,
+  "checks": {
+   "analyst": null,
+   "strategist": null
+  }
+ }
+}

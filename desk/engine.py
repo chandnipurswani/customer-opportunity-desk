@@ -22,6 +22,7 @@ POLICY = {
     "min_days_since_contact": 7,   # contacted more recently -> excluded
     "max_contacts_30d": 4,         # contacted more often -> excluded
     "campaign_budget_aed": 50_000,  # max expected discount cost per campaign
+    "global_holdout": 0.10,        # owner call: 10% of ALL customers never get cross-brand campaigns (programme control)
     "holdout_min": 0.10,           # control group is sized by a power calculation, within these bounds (owner call)
     "holdout_max": 0.50,
     "target_power": 0.80,          # chance of detecting the expected lift if it is real
@@ -61,6 +62,9 @@ class Engine:
         self.bought = bought.reindex(columns=B, fill_value=False)
         last = self.tx.groupby("customer_id").days_ago.min()
         self.active = last <= ACTIVE_DAYS
+        # deterministic, effectively random assignment by customer id (stable across runs)
+        ids = self.customers.index.to_numpy()
+        self.global_holdout = pd.Series((ids * 2654435761 % 1000) < POLICY["global_holdout"] * 1000, index=self.customers.index)
 
     # ------------------------------------------------------------------ tools
     def brand_pair_stats(self, top: int = 10) -> list[dict]:
@@ -142,6 +146,7 @@ class Engine:
             "no_consent": int((~c[f"consent_{channel}"]).sum()) if channel in POLICY["channels"] else len(c),
             "contacted_recently": int((c.days_since_last_contact < POLICY["min_days_since_contact"]).sum()),
             "contact_cap": int((c.contacts_last_30d > POLICY["max_contacts_30d"]).sum()),
+            "global_holdout_not_contacted": int(self.global_holdout.reindex(c.index).sum()),
         }
         ok = c[f"consent_{channel}"] if channel in POLICY["channels"] else pd.Series(False, index=c.index)
         ok &= c.days_since_last_contact >= POLICY["min_days_since_contact"]
@@ -182,7 +187,11 @@ def simulate_send(engine: Engine, action: Action, seed: int = 11) -> pd.DataFram
     """Simulated 90-day outcome. Uses the planted TRUTH; this is the 'real world', not the engine."""
     rng = np.random.default_rng(seed)
     ids = engine.eligible_ids(action.from_brand, action.to_brand, action.channel)
-    treated = rng.random(len(ids)) >= action.holdout_share
+    in_global = engine.global_holdout.reindex(ids).to_numpy()
+    # campaign control = the global-holdout customers in this audience, topped up to the planned share if needed
+    g = POLICY["global_holdout"]
+    extra = max(action.holdout_share - g, 0) / (1 - g)
+    treated = ~in_global & (rng.random(len(ids)) >= extra)
     base = TRUTH.base_rate(action.from_brand, action.to_brand)
     p = base + treated * TRUTH.uplift(action.from_brand, action.to_brand, action.channel, action.discount)
     converted = rng.random(len(ids)) < p
@@ -190,7 +199,7 @@ def simulate_send(engine: Engine, action: Action, seed: int = 11) -> pd.DataFram
     basket = np.where(converted, tb.avg_basket * rng.lognormal(0, 0.35, len(ids)), 0.0)
     discount = np.where(treated, action.discount, 0.0)
     margin = basket * (tb.gross_margin - discount)
-    return pd.DataFrame({"customer_id": ids, "treated": treated, "converted": converted,
+    return pd.DataFrame({"customer_id": ids, "treated": treated, "global_holdout": in_global, "converted": converted,
                          "basket_aed": basket.round(2), "gross_margin_aed": margin.round(2)})
 
 
@@ -210,6 +219,15 @@ def measure_lift(results: pd.DataFrame) -> dict:
         "ci95_total_aed": [round(float((diff - 1.96 * se) * n_t), 0), round(float((diff + 1.96 * se) * n_t), 0)],
         "significant": bool(diff - 1.96 * se > 0),
     }
+
+
+def measure_programme(all_results: list[pd.DataFrame]) -> dict:
+    """Programme level: everyone contacted across all campaigns vs their global-holdout counterparts."""
+    r = pd.concat(all_results, ignore_index=True)
+    r = r[r.treated | r.global_holdout]
+    out = measure_lift(r.assign(treated=r.treated))
+    out["campaigns"] = len(all_results)
+    return out
 
 
 def true_incremental_margin_per_customer(engine: Engine, action: Action) -> float:
