@@ -159,6 +159,34 @@ class Engine:
         return {"passed": not violations, "violations": violations, "audience_before_rules": int(len(c)),
                 "eligible_audience": eligible, "excluded_by_rule": excluded, "estimate_for_eligible": est}
 
+    def compare_options(self, from_brand: str, to_brand: str, options: list[dict]) -> dict:
+        """Evaluate several (channel, discount) options side by side, including each option's gap to the best,
+        so the agents never have to subtract or compare numbers themselves."""
+        rows = []
+        for o in options:
+            ch, disc = o["channel"], float(o["discount"])
+            pol = self.check_policy(from_brand, to_brand, ch, disc)
+            est = pol["estimate_for_eligible"] or {}
+            rows.append({"channel": ch, "discount": disc, "passes_policy": pol["passed"], "violations": pol["violations"],
+                         "eligible_audience": pol["eligible_audience"],
+                         "expected_incremental_gross_margin_aed": est.get("expected_incremental_gross_margin_aed"),
+                         "expected_discount_cost_aed": est.get("expected_discount_cost_aed"),
+                         "control_group_share": (est.get("control_group") or {}).get("holdout_share"),
+                         "measurable": (est.get("control_group") or {}).get("measurable")})
+        ok = [r for r in rows if r["passes_policy"]]
+        best = max(ok, key=lambda r: r["expected_incremental_gross_margin_aed"]) if ok else None
+        best_nd = max((r for r in ok if r["discount"] == 0), key=lambda r: r["expected_incremental_gross_margin_aed"], default=None)
+        for r in rows:
+            r["gap_vs_best_aed"] = (round(best["expected_incremental_gross_margin_aed"] - r["expected_incremental_gross_margin_aed"], 0)
+                                    if best and r["passes_policy"] else None)
+            r["share_of_best"] = (round(r["expected_incremental_gross_margin_aed"] / best["expected_incremental_gross_margin_aed"], 2)
+                                  if best and r["passes_policy"] and best["expected_incremental_gross_margin_aed"] else None)
+        rows.sort(key=lambda r: -(r["expected_incremental_gross_margin_aed"] or -1e9))
+        return {"options": rows, "best": best and {"channel": best["channel"], "discount": best["discount"]},
+                "best_no_discount": best_nd and {"channel": best_nd["channel"], "discount": 0.0},
+                "discount_premium_over_best_no_discount_aed": (round(best["expected_incremental_gross_margin_aed"]
+                    - best_nd["expected_incremental_gross_margin_aed"], 0) if best and best_nd else None)}
+
     # ------------------------------------------------------------------ after approval (not agent tools)
     def eligible_ids(self, from_brand: str, to_brand: str, channel: str) -> np.ndarray:
         c = self.customers.loc[self._audience(from_brand, to_brand)]

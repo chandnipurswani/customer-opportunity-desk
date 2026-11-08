@@ -23,9 +23,9 @@ RUNS = Path(__file__).resolve().parents[1] / "runs"
 TOP_N = 3                                   # owner call: top 3 opportunities a week
 
 ANALYST_SYSTEM = f"""You are the Analyst agent in a Customer Opportunity Desk for Al Waha Retail, a fictional GCC multi-brand
-retail group (brands: Mirage fashion, Haven home, Pace sports, Glow beauty, Little Oasis kids, Volt electronics).
+retail group with six stores named by what they sell: Fashion, Home, Sports, Beauty, Kids, Electronics.
 Your user is the customer growth manager. Your job: find the {TOP_N} best CROSS-BRAND opportunities this week:
-customers of one brand who are likely to start shopping another brand in the group.
+customers of one store who are likely to start shopping at another store in the group.
 
 Rules:
 - Use the tools. Never calculate or estimate numbers yourself; every number you state must appear in a tool result.
@@ -41,21 +41,23 @@ Given one cross-brand opportunity, design ONE action for the customer growth man
 
 Rules:
 - Use the tools. Never calculate numbers yourself; every number you state must appear in a tool result.
-- Message first: ALWAYS evaluate a no-discount option on at least two channels the audience has consented to.
-  Propose a discount (max {POLICY['max_discount']:.0%}) ONLY if check_policy shows its expected incremental gross margin
-  is higher than the best no-discount option. The north star is incremental gross margin, not revenue.
+- Never add, subtract, divide or compare numbers yourself. To compare options, call compare_options and quote its
+  gap_vs_best_aed, share_of_best and discount_premium_over_best_no_discount_aed fields.
+- Message first: ALWAYS include no-discount options on at least two channels in compare_options.
+  Propose a discount (max {POLICY['max_discount']:.0%}) ONLY if compare_options shows it beats the best no-discount option
+  (discount_premium_over_best_no_discount_aed > 0). The north star is incremental gross margin, not revenue.
 - The action must pass check_policy. Prefer an action whose control group is measurable; if none is, say it will be
   read as directional and counted in the programme-level result.
-- Draft the customer message in English AND Modern Standard Arabic. Warm, specific to the two brands, no false urgency,
+- Draft the customer message in English AND Modern Standard Arabic. Warm, specific to the two stores (say e.g. "our Beauty store"), no false urgency,
   no invented facts about products or prices beyond the offer. You may use {{first_name}}. Max 2 short sentences each.
 Return ONLY a JSON object: {{"from_brand": "...", "to_brand": "...", "channel": "email|sms|app_push|whatsapp",
 "discount": 0.0, "expected_incremental_gross_margin_aed": 0, "eligible_audience": 0, "control_group_share": 0.0,
 "measurable": true, "rationale": "2-3 sentences", "alternatives": [{{"channel": "...", "discount": 0.0,
-"expected_incremental_gross_margin_aed": 0, "why_not": "..."}}], "message_en": "...", "message_ar": "..."}}"""
+"expected_incremental_gross_margin_aed": 0, "gap_vs_best_aed": 0, "why_not": "..."}}], "message_en": "...", "message_ar": "..."}}"""
 
 
 def tool_specs(names: list[str]) -> list[dict]:
-    brand = {"type": "string", "enum": ["Mirage", "Haven", "Pace", "Glow", "Little Oasis", "Volt"]}
+    brand = {"type": "string", "enum": ["Fashion", "Home", "Sports", "Beauty", "Kids", "Electronics"]}
     pair = {"from_brand": brand, "to_brand": brand}
     action = {**pair, "channel": {"type": "string", "enum": POLICY["channels"]},
               "discount": {"type": "number", "description": "0 to 0.15, e.g. 0.10 for 10% off"}}
@@ -71,6 +73,12 @@ def tool_specs(names: list[str]) -> list[dict]:
                          "rules for an action; returns eligible audience, exclusions, violations, and the planning "
                          "estimate of incremental gross margin and the control-group size for the eligible audience.",
                          "input_schema": {"type": "object", "properties": action, "required": list(action)}},
+        "compare_options": {"description": "Evaluates several (channel, discount) options for one pair side by side: policy "
+                            "result, eligible audience, expected incremental gross margin, discount cost, control group, and "
+                            "each option's gap to the best option. Use this instead of comparing numbers yourself.",
+                            "input_schema": {"type": "object", "properties": {**pair, "options": {"type": "array", "items": {
+                                "type": "object", "properties": {"channel": action["channel"], "discount": action["discount"]},
+                                "required": ["channel", "discount"]}}}, "required": [*pair, "options"]}},
     }
     return [{"name": n, **specs[n]} for n in names]
 
@@ -80,6 +88,8 @@ def call_tool(engine: Engine, name: str, args: dict):
         return engine.brand_pair_stats(top=int(args.get("top", 10)))
     if name == "pair_detail":
         return engine.pair_detail(args["from_brand"], args["to_brand"])
+    if name == "compare_options":
+        return engine.compare_options(args["from_brand"], args["to_brand"], args["options"])
     if name == "check_policy":
         return engine.check_policy(args["from_brand"], args["to_brand"], args["channel"], float(args["discount"]))
     raise ValueError(f"unknown tool {name}")
@@ -92,7 +102,8 @@ def _parse_json(text: str) -> dict:
     return json.loads(m.group(0))
 
 
-def run_agent(engine: Engine, system: str, user: str, tools: list[str], client=None, max_turns: int = 12) -> dict:
+def run_agent(engine: Engine, system: str, user: str, tools: list[str], client=None, max_turns: int = 12,
+              progress: bool = False) -> dict:
     """Tool-use loop. Returns {"output": parsed JSON, "trace": [...], "usage": {...}}."""
     import anthropic
     client = client or anthropic.Anthropic()
@@ -110,6 +121,8 @@ def run_agent(engine: Engine, system: str, user: str, tools: list[str], client=N
         results = []
         for b in r.content:
             if b.type == "tool_use":
+                if progress:
+                    print(f"   · {b.name}({', '.join(f'{k}={v}' for k, v in b.input.items() if k != 'options')})", flush=True)
                 out = call_tool(engine, b.name, b.input)
                 trace.append({"tool": b.name, "input": b.input, "output": out})
                 results.append({"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, default=str)})
@@ -166,20 +179,24 @@ def faithfulness(agent_result: dict) -> dict:
     return {"numbers_stated": len(stated), "unsupported": unsupported, "faithful": not unsupported}
 
 
-def run_cycle(engine: Engine, mock: bool | None = None) -> dict:
+def run_cycle(engine: Engine, mock: bool | None = None, progress: bool = False) -> dict:
     mock = os.environ.get("DESK_MOCK") == "1" if mock is None else mock
     t0 = time.time()
     if mock:
         cycle = _mock_cycle(engine)
     else:
+        if progress:
+            print("Analyst agent: looking for this week's cross-brand opportunities…", flush=True)
         analyst = run_agent(engine, ANALYST_SYSTEM,
                             f"It is {dt.date.today():%d %B %Y}. Find this week's top {TOP_N} cross-brand opportunities.",
-                            ["brand_pair_stats", "pair_detail"])
+                            ["brand_pair_stats", "pair_detail"], progress=progress)
         strategist = []
         for o in analyst["output"]["opportunities"][:TOP_N]:
+            if progress:
+                print(f"Strategist agent: designing the action for {o['from_brand']} -> {o['to_brand']}…", flush=True)
             strategist.append(run_agent(engine, STRATEGIST_SYSTEM,
                                         "Design the action for this opportunity:\n" + json.dumps(o, ensure_ascii=False),
-                                        ["pair_detail", "check_policy"]))
+                                        ["pair_detail", "compare_options", "check_policy"], progress=progress))
         cycle = {"analyst": analyst, "strategist": strategist}
     cycle["meta"] = {"created": dt.datetime.now().isoformat(timespec="seconds"), "model": "mock" if mock else MODEL,
                      "seconds": round(time.time() - t0, 1),
@@ -197,10 +214,15 @@ def save_run(cycle: dict, name: str = "latest") -> Path:
 
 if __name__ == "__main__":
     from .synthetic import generate
+    print("Loading the synthetic customer base…", flush=True)
     eng = Engine(generate())
-    c = run_cycle(eng)
+    c = run_cycle(eng, progress=True)
     p = save_run(c, "mock" if c["meta"]["model"] == "mock" else "latest")
-    print(json.dumps(c["meta"], indent=1))
+    ch = c["meta"]["checks"]
+    print(f"\nDone in {c['meta']['seconds']}s.")
+    if ch["analyst"]:
+        bad = ch["analyst"]["unsupported"] + [n for s in ch["strategist"] for n in s["unsupported"]]
+        print("Number check: " + ("all numbers trace back to the engine ✅" if not bad else f"numbers not found in tool results ⚠️ {bad}"))
     for s in c["strategist"]:
         o = s["output"]
         print(f"- {o['from_brand']} -> {o['to_brand']}: {o['channel']}, {o['discount']:.0%} off, "

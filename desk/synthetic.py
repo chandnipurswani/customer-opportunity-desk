@@ -16,13 +16,13 @@ TODAY = pd.Timestamp("2026-11-01")
 HISTORY_DAYS = 540
 
 BRANDS = pd.DataFrame([
-    # brand, category, avg first basket (AED), gross margin
-    ("Mirage", "Fashion", 320, 0.55),
-    ("Haven", "Home", 450, 0.45),
-    ("Pace", "Sports", 280, 0.40),
-    ("Glow", "Beauty", 180, 0.60),
-    ("Little Oasis", "Kids", 220, 0.45),
-    ("Volt", "Electronics", 900, 0.20),
+    # store (named by what it sells, so anyone can follow), category, avg first basket (AED), gross margin
+    ("Fashion", "Clothing and accessories", 320, 0.55),
+    ("Home", "Furniture and homewares", 450, 0.45),
+    ("Sports", "Sportswear and equipment", 280, 0.40),
+    ("Beauty", "Cosmetics and fragrance", 180, 0.60),
+    ("Kids", "Toys and children's clothing", 220, 0.45),
+    ("Electronics", "Phones, wearables and gadgets", 900, 0.20),
 ], columns=["brand", "category", "avg_basket", "gross_margin"])
 B = list(BRANDS.brand)
 HOME_SHARE = [0.28, 0.16, 0.18, 0.17, 0.12, 0.09]
@@ -32,11 +32,11 @@ def _planted_affinity() -> np.ndarray:
     """Row = brand a customer already shops, column = brand they might cross to. 1.0 = neutral."""
     a = np.ones((6, 6))
     i = {b: k for k, b in enumerate(B)}
-    a[i["Mirage"], i["Glow"]] = 6.0         # fashion -> beauty: the strongest planted pair
-    a[i["Little Oasis"], i["Haven"]] = 5.0  # kids -> home
-    a[i["Pace"], i["Volt"]] = 4.0           # sports -> electronics (wearables)
-    a[i["Glow"], i["Mirage"]] = 3.0         # beauty -> fashion
-    a[i["Volt"], i["Little Oasis"]] = 0.3   # electronics -> kids: a planted NON-opportunity
+    a[i["Fashion"], i["Beauty"]] = 6.0         # fashion -> beauty: the strongest planted pair
+    a[i["Kids"], i["Home"]] = 5.0  # kids -> home
+    a[i["Sports"], i["Electronics"]] = 4.0           # sports -> electronics (wearables)
+    a[i["Beauty"], i["Fashion"]] = 3.0         # beauty -> fashion
+    a[i["Electronics"], i["Kids"]] = 0.3   # electronics -> kids: a planted NON-opportunity
     np.fill_diagonal(a, 0.0)
     return a
 

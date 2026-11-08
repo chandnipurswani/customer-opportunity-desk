@@ -24,20 +24,20 @@ class FakeClient:
         usage = NS(input_tokens=100, output_tokens=50)
         if self.calls == 1:
             return NS(stop_reason="tool_use", usage=usage, content=[
-                NS(type="tool_use", id="t1", name="pair_detail", input={"from_brand": "Mirage", "to_brand": "Glow"})])
+                NS(type="tool_use", id="t1", name="pair_detail", input={"from_brand": "Fashion", "to_brand": "Beauty"})])
         return NS(stop_reason="end_turn", usage=usage, content=[NS(type="text", text="Here:\n" + json.dumps(self.final))])
 
 
 def test_tool_loop_runs_engine_tools_and_parses_json(eng):
-    final = {"opportunities": [{"rank": 1, "from_brand": "Mirage", "to_brand": "Glow", "headline": "x"}]}
+    final = {"opportunities": [{"rank": 1, "from_brand": "Fashion", "to_brand": "Beauty", "headline": "x"}]}
     r = A.run_agent(eng, "sys", "go", ["pair_detail"], client=FakeClient(final))
     assert r["output"] == final
-    assert r["trace"][0]["tool"] == "pair_detail" and r["trace"][0]["output"]["to_brand"] == "Glow"
+    assert r["trace"][0]["tool"] == "pair_detail" and r["trace"][0]["output"]["to_brand"] == "Beauty"
     assert r["usage"] == {"input_tokens": 200, "output_tokens": 100}
 
 
 def test_faithfulness_flags_invented_numbers(eng):
-    d = eng.pair_detail("Mirage", "Glow")
+    d = eng.pair_detail("Fashion", "Beauty")
     ok = {"output": {"text": f"Audience of {d['audience_size']} customers"}, "trace": [{"output": d}]}
     bad = {"output": {"text": "Audience of 123456 customers"}, "trace": [{"output": d}]}
     assert A.faithfulness(ok)["faithful"]
@@ -50,3 +50,16 @@ def test_mock_cycle_respects_policy_and_top_n(eng):
     for s in c["strategist"]:
         o = s["output"]
         assert eng.check_policy(o["from_brand"], o["to_brand"], o["channel"], o["discount"])["passed"]
+
+
+def test_compare_options_gives_gaps_so_agents_never_subtract(eng):
+    r = eng.compare_options("Fashion", "Beauty", [{"channel": "email", "discount": 0.0},
+                                               {"channel": "email", "discount": 0.10},
+                                               {"channel": "email", "discount": 0.20}])
+    best = r["options"][0]
+    assert best["gap_vs_best_aed"] == 0
+    blocked = [o for o in r["options"] if not o["passes_policy"]]
+    assert blocked and blocked[0]["discount"] == 0.20 and blocked[0]["gap_vs_best_aed"] is None
+    a = A.faithfulness({"output": {"t": f"wins by AED {r['discount_premium_over_best_no_discount_aed']:.0f}"},
+                        "trace": [{"output": r}]})
+    assert a["faithful"]
