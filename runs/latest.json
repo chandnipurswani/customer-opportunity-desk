@@ -1,0 +1,1149 @@
+{
+ "analyst": {
+  "output": {
+   "opportunities": [
+    {
+     "rank": 1,
+     "from_brand": "Little Oasis",
+     "to_brand": "Haven",
+     "headline": "Little Oasis shoppers are the most likely of any group to start buying from Haven, and Haven pays well per order.",
+     "evidence": [
+      "Affinity lift is 2.28, the highest of all pairs.",
+      "The audience is 2871 Little Oasis customers active in the last 90 days who have never bought Haven.",
+      "Haven's average basket is AED 450 at a 0.45 gross margin.",
+      "The lift rests on 1831 multi-brand customers.",
+      "Email consent is 0.71 and SMS consent is 0.55."
+     ],
+     "why_it_matters": "This pair has the strongest pull and a healthy basket and margin. It is the best quality of lead, though the pool is the smallest of the three.",
+     "risks": [
+      "It has the smallest audience of the top three, so total volume is capped.",
+      "Natural 90-day cross-purchase is already 0.0198. Some of these customers would buy anyway, so measure results against a holdout group.",
+      "Lift shows who is likely to buy. It does not prove a campaign will cause the purchase.",
+      "WhatsApp consent is only 0.35 and app push is 0.40. Plan on email and SMS.",
+      "The audience is 0.35 Arabic, so send Arabic creative."
+     ],
+     "confidence": "medium"
+    },
+    {
+     "rank": 2,
+     "from_brand": "Mirage",
+     "to_brand": "Glow",
+     "headline": "Mirage shoppers are the biggest pool likely to try Glow, with a strong affinity and the best margin rate.",
+     "evidence": [
+      "Affinity lift is 2.08, the second highest.",
+      "The audience is 6718 customers, the largest of all candidates.",
+      "The lift rests on 4380 multi-brand customers, the strongest evidence base.",
+      "Glow's average basket is AED 180 at a 0.60 gross margin.",
+      "Email consent is 0.71 and SMS consent is 0.55."
+     ],
+     "why_it_matters": "Lift is nearly as high as the top pair and the audience is far larger, so this offers the most total reach. Orders are small, so success depends on volume.",
+     "risks": [
+      "Glow's basket is the lowest of the group at AED 180, so each conversion is worth less.",
+      "Natural 90-day cross-purchase is 0.0189. A discount could be wasted on people who would buy anyway.",
+      "I did not calculate expected revenue or profit. Compare the pairs on that basis before committing budget.",
+      "The tools give no data on campaign response, so the uplift is unproven."
+     ],
+     "confidence": "high"
+    },
+    {
+     "rank": 3,
+     "from_brand": "Pace",
+     "to_brand": "Volt",
+     "headline": "Pace shoppers show strong affinity for Volt, but the low margin on electronics limits the payoff.",
+     "evidence": [
+      "Affinity lift is 2.18, the second highest.",
+      "The audience is 4305 customers.",
+      "The lift rests on 2692 multi-brand customers.",
+      "Volt's average basket is AED 900, but its gross margin is only 0.20.",
+      "Email consent is 0.69 and SMS consent is 0.55."
+     ],
+     "why_it_matters": "The large basket is attractive, and the audience is mid-sized. But the thin margin means discounts could remove most of the profit.",
+     "risks": [
+      "The 0.20 margin leaves little room for discounts.",
+      "Natural 90-day cross-purchase is 0.0186, so some buyers would convert without a campaign.",
+      "Large electronics purchases may be a one-off and may not become a lasting habit.",
+      "WhatsApp consent is 0.34.",
+      "I did not calculate profit per order. Check it before deciding between this pair and Glow to Mirage."
+     ],
+     "confidence": "medium"
+    }
+   ]
+  },
+  "trace": [
+   {
+    "tool": "brand_pair_stats",
+    "input": {
+     "top": 10
+    },
+    "output": [
+     {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "affinity_lift": 2.28,
+      "multi_brand_evidence_n": 1831,
+      "audience_size": 2871
+     },
+     {
+      "from_brand": "Pace",
+      "to_brand": "Volt",
+      "affinity_lift": 2.18,
+      "multi_brand_evidence_n": 2692,
+      "audience_size": 4305
+     },
+     {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "affinity_lift": 2.08,
+      "multi_brand_evidence_n": 4380,
+      "audience_size": 6718
+     },
+     {
+      "from_brand": "Glow",
+      "to_brand": "Mirage",
+      "affinity_lift": 1.79,
+      "multi_brand_evidence_n": 2749,
+      "audience_size": 4296
+     },
+     {
+      "from_brand": "Haven",
+      "to_brand": "Little Oasis",
+      "affinity_lift": 1.56,
+      "multi_brand_evidence_n": 2538,
+      "audience_size": 4504
+     },
+     {
+      "from_brand": "Haven",
+      "to_brand": "Pace",
+      "affinity_lift": 1.43,
+      "multi_brand_evidence_n": 2538,
+      "audience_size": 4505
+     },
+     {
+      "from_brand": "Volt",
+      "to_brand": "Pace",
+      "affinity_lift": 1.39,
+      "multi_brand_evidence_n": 1402,
+      "audience_size": 2572
+     },
+     {
+      "from_brand": "Volt",
+      "to_brand": "Haven",
+      "affinity_lift": 1.23,
+      "multi_brand_evidence_n": 1402,
+      "audience_size": 2579
+     },
+     {
+      "from_brand": "Glow",
+      "to_brand": "Little Oasis",
+      "affinity_lift": 1.14,
+      "multi_brand_evidence_n": 2749,
+      "audience_size": 5037
+     },
+     {
+      "from_brand": "Haven",
+      "to_brand": "Volt",
+      "affinity_lift": 1.12,
+      "multi_brand_evidence_n": 2538,
+      "audience_size": 4532
+     }
+    ]
+   },
+   {
+    "tool": "pair_detail",
+    "input": {
+     "from_brand": "Little Oasis",
+     "to_brand": "Haven"
+    },
+    "output": {
+     "from_brand": "Little Oasis",
+     "to_brand": "Haven",
+     "affinity_lift": 2.28,
+     "audience_size": 2871,
+     "audience_definition": "Little Oasis customers active in the last 90 days who have never bought Haven",
+     "natural_90d_cross_rate": 0.0198,
+     "to_brand_avg_basket_aed": 450.0,
+     "to_brand_gross_margin": 0.45,
+     "language_mix": {
+      "en": 0.65,
+      "ar": 0.35
+     },
+     "city_mix": {
+      "Dubai": 0.44,
+      "Abu Dhabi": 0.32,
+      "Sharjah": 0.15,
+      "Al Ain": 0.1
+     },
+     "consent_rates": {
+      "email": 0.71,
+      "sms": 0.55,
+      "app_push": 0.4,
+      "whatsapp": 0.35
+     }
+    }
+   },
+   {
+    "tool": "pair_detail",
+    "input": {
+     "from_brand": "Pace",
+     "to_brand": "Volt"
+    },
+    "output": {
+     "from_brand": "Pace",
+     "to_brand": "Volt",
+     "affinity_lift": 2.18,
+     "audience_size": 4305,
+     "audience_definition": "Pace customers active in the last 90 days who have never bought Volt",
+     "natural_90d_cross_rate": 0.0186,
+     "to_brand_avg_basket_aed": 900.0,
+     "to_brand_gross_margin": 0.2,
+     "language_mix": {
+      "en": 0.65,
+      "ar": 0.35
+     },
+     "city_mix": {
+      "Dubai": 0.45,
+      "Abu Dhabi": 0.3,
+      "Sharjah": 0.15,
+      "Al Ain": 0.11
+     },
+     "consent_rates": {
+      "email": 0.69,
+      "sms": 0.55,
+      "app_push": 0.4,
+      "whatsapp": 0.34
+     }
+    }
+   },
+   {
+    "tool": "pair_detail",
+    "input": {
+     "from_brand": "Mirage",
+     "to_brand": "Glow"
+    },
+    "output": {
+     "from_brand": "Mirage",
+     "to_brand": "Glow",
+     "affinity_lift": 2.08,
+     "audience_size": 6718,
+     "audience_definition": "Mirage customers active in the last 90 days who have never bought Glow",
+     "natural_90d_cross_rate": 0.0189,
+     "to_brand_avg_basket_aed": 180.0,
+     "to_brand_gross_margin": 0.6,
+     "language_mix": {
+      "en": 0.65,
+      "ar": 0.35
+     },
+     "city_mix": {
+      "Dubai": 0.45,
+      "Abu Dhabi": 0.3,
+      "Sharjah": 0.15,
+      "Al Ain": 0.1
+     },
+     "consent_rates": {
+      "email": 0.71,
+      "sms": 0.55,
+      "app_push": 0.41,
+      "whatsapp": 0.35
+     }
+    }
+   },
+   {
+    "tool": "pair_detail",
+    "input": {
+     "from_brand": "Glow",
+     "to_brand": "Mirage"
+    },
+    "output": {
+     "from_brand": "Glow",
+     "to_brand": "Mirage",
+     "affinity_lift": 1.79,
+     "audience_size": 4296,
+     "audience_definition": "Glow customers active in the last 90 days who have never bought Mirage",
+     "natural_90d_cross_rate": 0.0204,
+     "to_brand_avg_basket_aed": 320.0,
+     "to_brand_gross_margin": 0.55,
+     "language_mix": {
+      "en": 0.64,
+      "ar": 0.36
+     },
+     "city_mix": {
+      "Dubai": 0.44,
+      "Abu Dhabi": 0.3,
+      "Sharjah": 0.16,
+      "Al Ain": 0.1
+     },
+     "consent_rates": {
+      "email": 0.7,
+      "sms": 0.55,
+      "app_push": 0.4,
+      "whatsapp": 0.36
+     }
+    }
+   }
+  ],
+  "usage": {
+   "input_tokens": 6103,
+   "output_tokens": 2243
+  }
+ },
+ "strategist": [
+  {
+   "output": {
+    "from_brand": "Little Oasis",
+    "to_brand": "Haven",
+    "channel": "email",
+    "discount": 0.05,
+    "expected_incremental_gross_margin_aed": 2425,
+    "eligible_audience": 1758,
+    "control_group_share": 0.5,
+    "measurable": false,
+    "rationale": "Of the options I checked, email with 5% off has the highest expected incremental gross margin, at AED 2425. The best no-discount option is email at AED 2278, so the discount wins by only AED 147. That gap is small for a planning estimate, so the manager may prefer to send with no discount. The action passes policy, but even a 50% holdout is too small to measure the lift. It will be read as directional and counted in the programme-level result.",
+    "alternatives": [
+     {
+      "channel": "email",
+      "discount": 0.0,
+      "expected_incremental_gross_margin_aed": 2278,
+      "why_not": "This is the best no-discount option and it is close. The 5% offer beats it by AED 147 in the planning estimate."
+     },
+     {
+      "channel": "sms",
+      "discount": 0.0,
+      "expected_incremental_gross_margin_aed": 1776,
+      "why_not": "SMS consent is lower, so only 1370 customers are eligible. Margin is lower than email with no discount."
+     },
+     {
+      "channel": "email",
+      "discount": 0.1,
+      "expected_incremental_gross_margin_aed": 2373,
+      "why_not": "More conversions, but the discount cost of AED 1685 takes margin below the 5% option."
+     },
+     {
+      "channel": "email",
+      "discount": 0.15,
+      "expected_incremental_gross_margin_aed": 2124,
+      "why_not": "The discount cost of AED 2824 pushes margin below the no-discount option."
+     },
+     {
+      "channel": "sms",
+      "discount": 0.1,
+      "expected_incremental_gross_margin_aed": 1850,
+      "why_not": "Lower margin than email, and a smaller eligible audience of 1370."
+     }
+    ],
+    "message_en": "Hi {first_name}, since you love Little Oasis, we think you'll enjoy discovering Haven too. Enjoy 5% off your first Haven order.",
+    "message_ar": "مرحباً {first_name}، بما أنك من محبي ليتل أويسيس، نعتقد أنك ستستمتع باكتشاف هيفن أيضاً. استمتع بخصم 5% على أول طلب لك من هيفن."
+   },
+   "trace": [
+    {
+     "tool": "pair_detail",
+     "input": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven"
+     },
+     "output": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "affinity_lift": 2.28,
+      "audience_size": 2871,
+      "audience_definition": "Little Oasis customers active in the last 90 days who have never bought Haven",
+      "natural_90d_cross_rate": 0.0198,
+      "to_brand_avg_basket_aed": 450.0,
+      "to_brand_gross_margin": 0.45,
+      "language_mix": {
+       "en": 0.65,
+       "ar": 0.35
+      },
+      "city_mix": {
+       "Dubai": 0.44,
+       "Abu Dhabi": 0.32,
+       "Sharjah": 0.15,
+       "Al Ain": 0.1
+      },
+      "consent_rates": {
+       "email": 0.71,
+       "sms": 0.55,
+       "app_push": 0.4,
+       "whatsapp": 0.35
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "channel": "email",
+      "discount": 0
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 2871,
+      "eligible_audience": 1758,
+      "excluded_by_rule": {
+       "no_consent": 830,
+       "contacted_recently": 322,
+       "contact_cap": 62,
+       "global_holdout_not_contacted": 274
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Little Oasis",
+       "to_brand": "Haven",
+       "channel": "email",
+       "discount": 0.0,
+       "treated": 879,
+       "assumed_uplift_pp": 1.28,
+       "expected_incremental_conversions": 11.3,
+       "expected_incremental_gross_margin_aed": 2278.0,
+       "expected_discount_cost_aed": 0.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2278.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "channel": "sms",
+      "discount": 0
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 2871,
+      "eligible_audience": 1370,
+      "excluded_by_rule": {
+       "no_consent": 1300,
+       "contacted_recently": 322,
+       "contact_cap": 62,
+       "global_holdout_not_contacted": 274
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Little Oasis",
+       "to_brand": "Haven",
+       "channel": "sms",
+       "discount": 0.0,
+       "treated": 685,
+       "assumed_uplift_pp": 1.28,
+       "expected_incremental_conversions": 8.8,
+       "expected_incremental_gross_margin_aed": 1776.0,
+       "expected_discount_cost_aed": 0.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 1776.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "channel": "email",
+      "discount": 0.1
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 2871,
+      "eligible_audience": 1758,
+      "excluded_by_rule": {
+       "no_consent": 830,
+       "contacted_recently": 322,
+       "contact_cap": 62,
+       "global_holdout_not_contacted": 274
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Little Oasis",
+       "to_brand": "Haven",
+       "channel": "email",
+       "discount": 0.1,
+       "treated": 879,
+       "assumed_uplift_pp": 2.28,
+       "expected_incremental_conversions": 20.0,
+       "expected_incremental_gross_margin_aed": 2373.0,
+       "expected_discount_cost_aed": 1685.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 3156.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "channel": "sms",
+      "discount": 0.1
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 2871,
+      "eligible_audience": 1370,
+      "excluded_by_rule": {
+       "no_consent": 1300,
+       "contacted_recently": 322,
+       "contact_cap": 62,
+       "global_holdout_not_contacted": 274
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Little Oasis",
+       "to_brand": "Haven",
+       "channel": "sms",
+       "discount": 0.1,
+       "treated": 685,
+       "assumed_uplift_pp": 2.28,
+       "expected_incremental_conversions": 15.6,
+       "expected_incremental_gross_margin_aed": 1850.0,
+       "expected_discount_cost_aed": 1313.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2460.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "channel": "email",
+      "discount": 0.05
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 2871,
+      "eligible_audience": 1758,
+      "excluded_by_rule": {
+       "no_consent": 830,
+       "contacted_recently": 322,
+       "contact_cap": 62,
+       "global_holdout_not_contacted": 274
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Little Oasis",
+       "to_brand": "Haven",
+       "channel": "email",
+       "discount": 0.05,
+       "treated": 879,
+       "assumed_uplift_pp": 1.78,
+       "expected_incremental_conversions": 15.6,
+       "expected_incremental_gross_margin_aed": 2425.0,
+       "expected_discount_cost_aed": 744.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2816.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Little Oasis",
+      "to_brand": "Haven",
+      "channel": "email",
+      "discount": 0.15
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 2871,
+      "eligible_audience": 1758,
+      "excluded_by_rule": {
+       "no_consent": 830,
+       "contacted_recently": 322,
+       "contact_cap": 62,
+       "global_holdout_not_contacted": 274
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Little Oasis",
+       "to_brand": "Haven",
+       "channel": "email",
+       "discount": 0.15,
+       "treated": 879,
+       "assumed_uplift_pp": 2.78,
+       "expected_incremental_conversions": 24.4,
+       "expected_incremental_gross_margin_aed": 2124.0,
+       "expected_discount_cost_aed": 2824.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 3299.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    }
+   ],
+   "usage": {
+    "input_tokens": 11421,
+    "output_tokens": 1796
+   }
+  },
+  {
+   "output": {
+    "from_brand": "Mirage",
+    "to_brand": "Glow",
+    "channel": "email",
+    "discount": 0.15,
+    "expected_incremental_gross_margin_aed": 4573,
+    "eligible_audience": 4136,
+    "control_group_share": 0.3,
+    "measurable": true,
+    "rationale": "The no-discount options were weaker. Email earned AED 2412 and SMS earned AED 1858, and neither has a measurable control group. A 15% offer by email has the highest expected incremental gross margin of every option tested, at AED 4573 after AED 3494 of discount cost. It passes all policy checks, and its 30% holdout can be measured with 80% power. The figures are planning estimates built on assumed uplift, so the real result will come from the holdout.",
+    "alternatives": [
+     {
+      "channel": "email",
+      "discount": 0.0,
+      "expected_incremental_gross_margin_aed": 2412,
+      "why_not": "Best no-discount option, but it earns less than the 15% email offer. Its control group is also not measurable at this audience size, so it could only be read as directional."
+     },
+     {
+      "channel": "sms",
+      "discount": 0.0,
+      "expected_incremental_gross_margin_aed": 1858,
+      "why_not": "Reaches a smaller eligible audience (3187) because SMS consent is lower. It earns less than email and its control group is not measurable."
+     },
+     {
+      "channel": "email",
+      "discount": 0.1,
+      "expected_incremental_gross_margin_aed": 3800,
+      "why_not": "It is measurable and passes policy, but it earns AED 773 less than the 15% offer."
+     },
+     {
+      "channel": "email",
+      "discount": 0.05,
+      "expected_incremental_gross_margin_aed": 2883,
+      "why_not": "It earns less than the 15% offer and its control group is not measurable."
+     },
+     {
+      "channel": "sms",
+      "discount": 0.1,
+      "expected_incremental_gross_margin_aed": 2440,
+      "why_not": "It earns less than email and its control group is not measurable."
+     }
+    ],
+    "message_en": "Hi {first_name}, since you love Mirage, we think you'll enjoy discovering Glow. Here's 15% off your first Glow order.",
+    "message_ar": "مرحباً {first_name}، بما أنك من محبي ميراج، نظن أنك ستستمتع باكتشاف غلو. نقدّم لك خصم 15% على أول طلب من غلو."
+   },
+   "trace": [
+    {
+     "tool": "pair_detail",
+     "input": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow"
+     },
+     "output": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "affinity_lift": 2.08,
+      "audience_size": 6718,
+      "audience_definition": "Mirage customers active in the last 90 days who have never bought Glow",
+      "natural_90d_cross_rate": 0.0189,
+      "to_brand_avg_basket_aed": 180.0,
+      "to_brand_gross_margin": 0.6,
+      "language_mix": {
+       "en": 0.65,
+       "ar": 0.35
+      },
+      "city_mix": {
+       "Dubai": 0.45,
+       "Abu Dhabi": 0.3,
+       "Sharjah": 0.15,
+       "Al Ain": 0.1
+      },
+      "consent_rates": {
+       "email": 0.71,
+       "sms": 0.55,
+       "app_push": 0.41,
+       "whatsapp": 0.35
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "channel": "email",
+      "discount": 0
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 6718,
+      "eligible_audience": 4136,
+      "excluded_by_rule": {
+       "no_consent": 1974,
+       "contacted_recently": 737,
+       "contact_cap": 152,
+       "global_holdout_not_contacted": 660
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Mirage",
+       "to_brand": "Glow",
+       "channel": "email",
+       "discount": 0.0,
+       "treated": 2068,
+       "assumed_uplift_pp": 1.08,
+       "expected_incremental_conversions": 22.3,
+       "expected_incremental_gross_margin_aed": 2412.0,
+       "expected_discount_cost_aed": 0.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2412.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "channel": "sms",
+      "discount": 0
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 6718,
+      "eligible_audience": 3187,
+      "excluded_by_rule": {
+       "no_consent": 3027,
+       "contacted_recently": 737,
+       "contact_cap": 152,
+       "global_holdout_not_contacted": 660
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Mirage",
+       "to_brand": "Glow",
+       "channel": "sms",
+       "discount": 0.0,
+       "treated": 1593,
+       "assumed_uplift_pp": 1.08,
+       "expected_incremental_conversions": 17.2,
+       "expected_incremental_gross_margin_aed": 1858.0,
+       "expected_discount_cost_aed": 0.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 1859.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "channel": "email",
+      "discount": 0.1
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 6718,
+      "eligible_audience": 4136,
+      "excluded_by_rule": {
+       "no_consent": 1974,
+       "contacted_recently": 737,
+       "contact_cap": 152,
+       "global_holdout_not_contacted": 660
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Mirage",
+       "to_brand": "Glow",
+       "channel": "email",
+       "discount": 0.1,
+       "treated": 2481,
+       "assumed_uplift_pp": 2.08,
+       "expected_incremental_conversions": 51.6,
+       "expected_incremental_gross_margin_aed": 3800.0,
+       "expected_discount_cost_aed": 1773.0,
+       "control_group": {
+        "holdout_share": 0.4,
+        "measurable": true,
+        "reason": "smallest control group with 80% power to detect the expected lift"
+       },
+       "margin_withheld_by_control_aed": 3097.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "channel": "email",
+      "discount": 0.05
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 6718,
+      "eligible_audience": 4136,
+      "excluded_by_rule": {
+       "no_consent": 1974,
+       "contacted_recently": 737,
+       "contact_cap": 152,
+       "global_holdout_not_contacted": 660
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Mirage",
+       "to_brand": "Glow",
+       "channel": "email",
+       "discount": 0.05,
+       "treated": 2068,
+       "assumed_uplift_pp": 1.58,
+       "expected_incremental_conversions": 32.7,
+       "expected_incremental_gross_margin_aed": 2883.0,
+       "expected_discount_cost_aed": 646.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 3235.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "channel": "email",
+      "discount": 0.15
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 6718,
+      "eligible_audience": 4136,
+      "excluded_by_rule": {
+       "no_consent": 1974,
+       "contacted_recently": 737,
+       "contact_cap": 152,
+       "global_holdout_not_contacted": 660
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Mirage",
+       "to_brand": "Glow",
+       "channel": "email",
+       "discount": 0.15,
+       "treated": 2895,
+       "assumed_uplift_pp": 2.58,
+       "expected_incremental_conversions": 74.7,
+       "expected_incremental_gross_margin_aed": 4573.0,
+       "expected_discount_cost_aed": 3494.0,
+       "control_group": {
+        "holdout_share": 0.3,
+        "measurable": true,
+        "reason": "smallest control group with 80% power to detect the expected lift"
+       },
+       "margin_withheld_by_control_aed": 2593.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Mirage",
+      "to_brand": "Glow",
+      "channel": "sms",
+      "discount": 0.1
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 6718,
+      "eligible_audience": 3187,
+      "excluded_by_rule": {
+       "no_consent": 3027,
+       "contacted_recently": 737,
+       "contact_cap": 152,
+       "global_holdout_not_contacted": 660
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Mirage",
+       "to_brand": "Glow",
+       "channel": "sms",
+       "discount": 0.1,
+       "treated": 1593,
+       "assumed_uplift_pp": 2.08,
+       "expected_incremental_conversions": 33.1,
+       "expected_incremental_gross_margin_aed": 2440.0,
+       "expected_discount_cost_aed": 1138.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2983.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    }
+   ],
+   "usage": {
+    "input_tokens": 10691,
+    "output_tokens": 1773
+   }
+  },
+  {
+   "output": {
+    "from_brand": "Pace",
+    "to_brand": "Volt",
+    "channel": "email",
+    "discount": 0.0,
+    "expected_incremental_gross_margin_aed": 2761,
+    "eligible_audience": 2601,
+    "control_group_share": 0.5,
+    "measurable": false,
+    "rationale": "Email with no discount has the highest expected incremental gross margin of the options I checked (AED 2,761). It passes every policy rule. Volt's 0.20 margin means a discount costs more than the extra sales bring in. The control group is not measurable at this size, so the result will be read as directional and counted in the programme-level result.",
+    "alternatives": [
+     {
+      "channel": "sms",
+      "discount": 0.0,
+      "expected_incremental_gross_margin_aed": 2211,
+      "why_not": "Passes policy, but only 2,082 customers are eligible because SMS consent is lower. Its expected margin is lower than email's, and it is also not measurable."
+     },
+     {
+      "channel": "email",
+      "discount": 0.05,
+      "expected_incremental_gross_margin_aed": 1860,
+      "why_not": "A 5% discount adds conversions (21.8 against 15.3). It also costs AED 2,071 in discounts, so margin falls below the no-discount email option. I did not test larger discounts. They would cost more per order on a 0.20 margin, and the 5% option already falls short."
+     }
+    ],
+    "message_en": "Hi {first_name}, since you love Pace, we thought you might like to see what's new at Volt, our electronics store. Have a look whenever suits you.",
+    "message_ar": "مرحباً {first_name}، بما أنك من محبي Pace، نظن أنك قد تحب اكتشاف الجديد في Volt متجر الإلكترونيات لدينا. تفضل بالاطلاع في الوقت الذي يناسبك."
+   },
+   "trace": [
+    {
+     "tool": "pair_detail",
+     "input": {
+      "from_brand": "Pace",
+      "to_brand": "Volt"
+     },
+     "output": {
+      "from_brand": "Pace",
+      "to_brand": "Volt",
+      "affinity_lift": 2.18,
+      "audience_size": 4305,
+      "audience_definition": "Pace customers active in the last 90 days who have never bought Volt",
+      "natural_90d_cross_rate": 0.0186,
+      "to_brand_avg_basket_aed": 900.0,
+      "to_brand_gross_margin": 0.2,
+      "language_mix": {
+       "en": 0.65,
+       "ar": 0.35
+      },
+      "city_mix": {
+       "Dubai": 0.45,
+       "Abu Dhabi": 0.3,
+       "Sharjah": 0.15,
+       "Al Ain": 0.11
+      },
+      "consent_rates": {
+       "email": 0.69,
+       "sms": 0.55,
+       "app_push": 0.4,
+       "whatsapp": 0.34
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Pace",
+      "to_brand": "Volt",
+      "channel": "email",
+      "discount": 0
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 4305,
+      "eligible_audience": 2601,
+      "excluded_by_rule": {
+       "no_consent": 1320,
+       "contacted_recently": 465,
+       "contact_cap": 106,
+       "global_holdout_not_contacted": 437
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Pace",
+       "to_brand": "Volt",
+       "channel": "email",
+       "discount": 0.0,
+       "treated": 1300,
+       "assumed_uplift_pp": 1.18,
+       "expected_incremental_conversions": 15.3,
+       "expected_incremental_gross_margin_aed": 2761.0,
+       "expected_discount_cost_aed": 0.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2762.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Pace",
+      "to_brand": "Volt",
+      "channel": "sms",
+      "discount": 0
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 4305,
+      "eligible_audience": 2082,
+      "excluded_by_rule": {
+       "no_consent": 1923,
+       "contacted_recently": 465,
+       "contact_cap": 106,
+       "global_holdout_not_contacted": 437
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Pace",
+       "to_brand": "Volt",
+       "channel": "sms",
+       "discount": 0.0,
+       "treated": 1041,
+       "assumed_uplift_pp": 1.18,
+       "expected_incremental_conversions": 12.3,
+       "expected_incremental_gross_margin_aed": 2211.0,
+       "expected_discount_cost_aed": 0.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2211.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    },
+    {
+     "tool": "check_policy",
+     "input": {
+      "from_brand": "Pace",
+      "to_brand": "Volt",
+      "channel": "email",
+      "discount": 0.05
+     },
+     "output": {
+      "passed": true,
+      "violations": [],
+      "audience_before_rules": 4305,
+      "eligible_audience": 2601,
+      "excluded_by_rule": {
+       "no_consent": 1320,
+       "contacted_recently": 465,
+       "contact_cap": 106,
+       "global_holdout_not_contacted": 437
+      },
+      "estimate_for_eligible": {
+       "from_brand": "Pace",
+       "to_brand": "Volt",
+       "channel": "email",
+       "discount": 0.05,
+       "treated": 1300,
+       "assumed_uplift_pp": 1.68,
+       "expected_incremental_conversions": 21.8,
+       "expected_incremental_gross_margin_aed": 1860.0,
+       "expected_discount_cost_aed": 2071.0,
+       "control_group": {
+        "holdout_share": 0.5,
+        "measurable": false,
+        "reason": "audience too small to detect the expected lift even with a 50% control group: combine with another week or widen the audience"
+       },
+       "margin_withheld_by_control_aed": 2950.0,
+       "note": "planning estimate from assumptions; the real number comes from the holdout after sending"
+      }
+     }
+    }
+   ],
+   "usage": {
+    "input_tokens": 5428,
+    "output_tokens": 1207
+   }
+  }
+ ],
+ "meta": {
+  "created": "2026-11-08T12:17:25",
+  "model": "claude-sonnet-5-5",
+  "seconds": 53.8,
+  "checks": {
+   "analyst": {
+    "numbers_stated": 26,
+    "unsupported": [],
+    "faithful": true
+   },
+   "strategist": [
+    {
+     "numbers_stated": 18,
+     "unsupported": [
+      147.0
+     ],
+     "faithful": false
+    },
+    {
+     "numbers_stated": 18,
+     "unsupported": [
+      773.0
+     ],
+     "faithful": false
+    },
+    {
+     "numbers_stated": 13,
+     "unsupported": [],
+     "faithful": true
+    }
+   ]
+  }
+ }
+}
