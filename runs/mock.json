@@ -109,9 +109,9 @@
   }
  ],
  "meta": {
-  "created": "2026-11-07T23:09:45",
+  "created": "2026-11-08T12:09:08",
   "model": "mock",
-  "seconds": 1.5,
+  "seconds": 1.7,
   "checks": {
    "analyst": null,
    "strategist": null
