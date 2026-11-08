@@ -222,10 +222,9 @@ def measure_lift(results: pd.DataFrame) -> dict:
 
 
 def measure_programme(all_results: list[pd.DataFrame]) -> dict:
-    """Programme level: everyone contacted across all campaigns vs their global-holdout counterparts."""
+    """Programme level: everyone contacted across all campaigns vs everyone held back (global + campaign controls)."""
     r = pd.concat(all_results, ignore_index=True)
-    r = r[r.treated | r.global_holdout]
-    out = measure_lift(r.assign(treated=r.treated))
+    out = measure_lift(r)
     out["campaigns"] = len(all_results)
     return out
 
