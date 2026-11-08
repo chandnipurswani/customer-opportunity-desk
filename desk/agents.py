@@ -99,7 +99,7 @@ def run_agent(engine: Engine, system: str, user: str, tools: list[str], client=N
     messages = [{"role": "user", "content": user}]
     trace, tin, tout = [], 0, 0
     for _ in range(max_turns):
-        r = client.messages.create(model=MODEL, system=system, max_tokens=2500, temperature=0.2,
+        r = client.messages.create(model=MODEL, system=system, max_tokens=2500,
                                    tools=tool_specs(tools), messages=messages)
         tin += r.usage.input_tokens
         tout += r.usage.output_tokens
