@@ -63,3 +63,8 @@ def test_compare_options_gives_gaps_so_agents_never_subtract(eng):
     a = A.faithfulness({"output": {"t": f"wins by AED {r['discount_premium_over_best_no_discount_aed']:.0f}"},
                         "trace": [{"output": r}]})
     assert a["faithful"]
+
+
+def test_faithfulness_accepts_percentages_of_small_rates():
+    r = {"output": {"t": "about 1.98% cross over"}, "trace": [{"output": {"natural_90d_cross_rate": 0.0198}}]}
+    assert A.faithfulness(r)["faithful"]

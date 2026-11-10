@@ -1224,12 +1224,8 @@
   "checks": {
    "analyst": {
     "numbers_stated": 30,
-    "unsupported": [
-     1.86,
-     1.89,
-     1.98
-    ],
-    "faithful": false
+    "unsupported": [],
+    "faithful": true
    },
    "strategist": [
     {

@@ -164,7 +164,7 @@ def _numbers(obj) -> set[float]:
     out = set()
     for m in NUM.findall(s):
         try:
-            out.add(round(float(m.replace(",", "")), 2))
+            out.add(float(m.replace(",", "")))
         except ValueError:
             pass
     return out
@@ -173,9 +173,10 @@ def _numbers(obj) -> set[float]:
 def faithfulness(agent_result: dict) -> dict:
     """Every number in the agent's output should appear in (or be a simple % form of) a tool result."""
     tool_nums = _numbers([t["output"] for t in agent_result["trace"]])
-    allowed = tool_nums | {round(x * 100, 2) for x in tool_nums} | {round(x / 100, 4) for x in tool_nums} | {1, 2, 3, 0}
+    # allow the same number written as a percentage (0.0198 -> 1.98%) and normal rounding when written out
+    allowed = tool_nums | {x * 100 for x in tool_nums} | {x / 100 for x in tool_nums} | {0, 1, 2, 3}
     stated = _numbers(agent_result["output"])
-    unsupported = sorted(n for n in stated if not any(abs(n - a) <= max(0.01, abs(a) * 0.01) for a in allowed))
+    unsupported = sorted(n for n in stated if not any(abs(n - a) <= max(0.051, abs(a) * 0.01) for a in allowed))
     return {"numbers_stated": len(stated), "unsupported": unsupported, "faithful": not unsupported}
 
 
