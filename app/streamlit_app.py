@@ -162,7 +162,7 @@ st.markdown(f'<div class="weekline">This week the agents found <b>{len(opps)} op
             f'the expected extra gross margin is <span class="gold">{aed(total)}</span> over 90 days.</div>',
             unsafe_allow_html=True)
 
-tab_inbox, tab_results, tab_about = st.tabs(["This week", "Results", "How it works"])
+tab_inbox, tab_results, tab_about = st.tabs(["This week", "Performance", "How it works"])
 
 # ------------------------------------------------------------------ inbox
 with tab_inbox:
@@ -279,7 +279,7 @@ with tab_inbox:
                     ss.decisions[sel] = {"status": "Rejected", "reason": reason or "no reason given"}
                     st.rerun()
             elif decided["status"].startswith("Approved"):
-                st.markdown('<div class="done">Approved. The send was simulated; see the Results tab for what happened '
+                st.markdown('<div class="done">Approved. The send was simulated; see the Performance tab for what happened '
                             'over 90 days.</div>', unsafe_allow_html=True)
             else:
                 st.markdown(f'<div class="done no">Rejected: {esc(decided.get("reason"))}. The reason is logged for the '
@@ -299,41 +299,183 @@ with tab_inbox:
                                 ("All of them do." if not bad else f"These don't: {bad}."))
 
 # ------------------------------------------------------------------ results
+TEST, CONTROL = "#0E7C74", "#6B7588"
+
+
+def pct(x, d=1):
+    return f"{x * 100:.{d}f}%"
+
+
+def segment_uplift(df: pd.DataFrame, col: str) -> pd.DataFrame:
+    rows = []
+    for seg, g in df.groupby(col):
+        t, c = g[g.treated], g[~g.treated]
+        if len(t) < 30 or len(c) < 30:
+            continue
+        pt, pc = t.converted.mean(), c.converted.mean()
+        se = ((pt * (1 - pt)) / len(t) + (pc * (1 - pc)) / len(c)) ** 0.5
+        rows.append({"Segment": str(seg), "Uplift (pts)": (pt - pc) * 100, "low": (pt - pc - 1.96 * se) * 100,
+                     "high": (pt - pc + 1.96 * se) * 100, "Test CR": pt, "Control CR": pc,
+                     "Customers": len(g)})
+    return pd.DataFrame(rows)
+
+
 with tab_results:
+    import altair as alt
     sent = {k: v for k, v in ss.decisions.items() if "lift" in v}
     if not sent:
-        st.markdown('<div class="panel">Nothing has been sent yet. Approve an action under <b>This week</b> and its '
-                    'simulated 90-day result appears here.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel">No campaigns are live yet. Approve an action under <b>This week</b> to see its '
+                    'simulated 90-day performance here.</div>', unsafe_allow_html=True)
     else:
+        allres = pd.concat([v["results"] for v in sent.values()], ignore_index=True)
         prog = E.measure_programme([v["results"] for v in sent.values()])
-        st.markdown(f"""<div class="sect">Overall result, all approved campaigns</div><div class="figs">
+        # margin bridge and lifetime value, per campaign, then summed
+        inc_rev = cogs = disc = clv = 0.0
+        inc_cust = 0.0
+        for v in sent.values():
+            L, a = v["lift"], v["action"]
+            gm = float(eng.brands.loc[a.to_brand].gross_margin)
+            inc_rev += L["incremental_revenue_aed"]
+            cogs += L["incremental_revenue_aed"] * (1 - gm)
+            disc += L["discount_cost_aed"]
+            inc_cust += L["incremental_customers"]
+            clv += max(L["incremental_customers"], 0) * eng.store_12m_margin_per_new_customer(a.to_brand)
+        send_cost = sum(v["lift"]["send_cost_aed"] for v in sent.values())
+        fixed = E.CAMPAIGN_FIXED_COST * len(sent)
+        roi = prog["incremental_gross_margin_aed"] / (disc + send_cost + fixed)
+        sig = prog["p_value"] < 0.05
+        ptxt = "p < 0.01" if prog["p_value"] < 0.01 else f"p = {prog['p_value']:.2f}"
+        badge = (f'<span class="chip ok">Significant at 95% ({ptxt})</span>' if sig else
+                 f'<span class="chip">Not yet significant (p = {prog["p_value"]:.2f})</span>')
+
+        st.markdown(f"""<div class="sect">Campaign performance: {len(sent)} live campaign{'s' if len(sent) > 1 else ''},
+          90 days after send, test vs control</div>
+        <div class="figs" style="grid-template-columns:1.25fr 1fr 1fr 1fr 1fr">
           <div class="fig main"><div class="v">{aed(prog['incremental_gross_margin_aed'])}</div>
-            <div class="k">Extra gross margin caused by the campaigns</div></div>
-          <div class="fig"><div class="v">{prog['ci95_total_aed'][0]:,.0f} to {prog['ci95_total_aed'][1]:,.0f}</div>
-            <div class="k">Likely range, AED (95% confidence)</div></div>
-          <div class="fig"><div class="v">{prog['conversion_treated']:.1%} vs {prog['conversion_holdout']:.1%}</div>
-            <div class="k">Bought at the new store: contacted vs held back</div></div>
-          <div class="fig"><div class="v">{'Yes' if prog['significant'] else 'Not yet'}</div>
-            <div class="k">Clear evidence the campaigns worked</div></div>
+            <div class="k">Incremental gross margin<br>likely range {prog['ci95_total_aed'][0]:,.0f} to {prog['ci95_total_aed'][1]:,.0f}</div>
+            <div style="margin-top:0.4rem">{badge}</div></div>
+          <div class="fig"><div class="v">{aed(inc_rev)}</div><div class="k">Incremental revenue</div></div>
+          <div class="fig"><div class="v">{f'{roi:.1f}×' if roi else 'n/a'}</div>
+            <div class="k">Return on campaign cost (discounts, messaging and setup)</div></div>
+          <div class="fig"><div class="v">{pct(prog['cr_test'])} <span style="color:var(--muted);font-weight:400;font-size:1rem">vs {pct(prog['cr_control'])}</span></div>
+            <div class="k">Conversion rate, test vs control<br>+{prog['uplift_pp']:.1f} pts uplift</div></div>
+          <div class="fig"><div class="v">+{inc_cust:,.0f}</div>
+            <div class="k">New cross-store customers<br>worth about {aed(clv)} in projected 12-month margin</div></div>
         </div>""", unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        # ---- cumulative conversion curve
+        with c1:
+            st.markdown('<div class="sect">Conversion rate over the 90 days</div>', unsafe_allow_html=True)
+            days = pd.DataFrame({"day": range(1, 91)})
+            curves = []
+            for grp, g in (("Test", allres[allres.treated]), ("Control", allres[~allres.treated])):
+                cum = [(g.conversion_day <= d).sum() / len(g) for d in days.day]
+                curves.append(pd.DataFrame({"Day": days.day, "Conversion rate": cum, "Group": grp}))
+            cdf = pd.concat(curves)
+            color = alt.Scale(domain=["Test", "Control"], range=[TEST, CONTROL])
+            base = alt.Chart(cdf).encode(
+                x=alt.X("Day:Q", title="Days since send", scale=alt.Scale(domain=[1, 90]), axis=alt.Axis(grid=False, tickCount=6)),
+                y=alt.Y("Conversion rate:Q", title=None, axis=alt.Axis(format="%", gridColor="#E6E9EE", tickCount=4)),
+                color=alt.Color("Group:N", scale=color, legend=alt.Legend(orient="top", title=None)))
+            lines = base.mark_line(strokeWidth=2.25)
+            hover = alt.selection_point(fields=["Day"], nearest=True, on="pointerover", empty=False)
+            pts = base.mark_point(size=60, filled=True).encode(
+                opacity=alt.condition(hover, alt.value(1), alt.value(0)),
+                tooltip=[alt.Tooltip("Group:N"), alt.Tooltip("Day:Q"), alt.Tooltip("Conversion rate:Q", format=".2%")]
+            ).add_params(hover)
+            ends = base.transform_filter(alt.datum.Day == 90).mark_text(align="left", dx=6, fontSize=12).encode(
+                text="Group:N", color=alt.Color("Group:N", scale=color, legend=None))
+            st.altair_chart((lines + pts + ends).properties(height=260).configure_view(strokeWidth=0)
+                            .configure_axis(labelColor="#5E6A7D", domainColor="#DCE1E8", tickColor="#DCE1E8"),
+                            use_container_width=True)
+            st.markdown('<div class="muted">Most of the response comes in the first three weeks; the control group shows '
+                        'the cross-store buying that would have happened anyway.</div>', unsafe_allow_html=True)
+
+        # ---- margin bridge (waterfall)
+        with c2:
+            st.markdown('<div class="sect">From incremental revenue to margin</div>', unsafe_allow_html=True)
+            # cost of goods is implied so the bridge ends exactly at the measured incremental margin
+            cogs = inc_rev - disc - prog["incremental_gross_margin_aed"]
+            steps = [("Incremental revenue", inc_rev), ("Cost of goods", -cogs), ("Discounts given", -disc)]
+            rows, run = [], 0.0
+            for name, val in steps:
+                rows.append({"Step": name, "start": run, "end": run + val, "AED": val, "kind": "total" if name.startswith("Incr") else "cost"})
+                run += val
+            rows.append({"Step": "Incremental gross margin", "start": 0, "end": prog["incremental_gross_margin_aed"],
+                         "AED": prog["incremental_gross_margin_aed"], "kind": "result"})
+            wf = pd.DataFrame(rows)
+            order = list(wf.Step)
+            bars = alt.Chart(wf).mark_bar(cornerRadius=3, size=46).encode(
+                x=alt.X("Step:N", sort=order, title=None, axis=alt.Axis(labelAngle=0, labelLimit=140)),
+                y=alt.Y("start:Q", title=None, axis=alt.Axis(format=",.0f", gridColor="#E6E9EE", tickCount=4)),
+                y2="end:Q",
+                color=alt.Color("kind:N", scale=alt.Scale(domain=["total", "cost", "result"],
+                                                          range=["#9FD3CD", "#C9CED7", "#B7790B"]), legend=None),
+                tooltip=[alt.Tooltip("Step:N"), alt.Tooltip("AED:Q", format=",.0f")])
+            labels = alt.Chart(wf).mark_text(dy=-8, fontSize=12, color="#172033").encode(
+                x=alt.X("Step:N", sort=order), y=alt.Y("max_y:Q"), text=alt.Text("AED:Q", format=",.0f")
+            ).transform_calculate(max_y="max(datum.start, datum.end)")
+            st.altair_chart((bars + labels).properties(height=260).configure_view(strokeWidth=0)
+                            .configure_axis(labelColor="#5E6A7D", domainColor="#DCE1E8", tickColor="#DCE1E8"),
+                            use_container_width=True)
+            st.markdown(f'<div class="muted">Discounts include those given to customers who would have bought anyway, '
+                        f'which is why margin, not revenue, is the measure of success. Messaging cost: {aed(send_cost)}.</div>',
+                        unsafe_allow_html=True)
+
+        # ---- uplift by segment
+        st.markdown('<div class="sect">Where it worked: conversion uplift by segment</div>', unsafe_allow_html=True)
+        dims = {"Customer value": "value_tier", "Language": "language", "City": "city", "Campaign": "campaign"}
+        dim = st.radio("Break down by", list(dims), horizontal=True, label_visibility="collapsed")
+        seg = segment_uplift(allres, dims[dim])
+        if seg.empty:
+            st.markdown('<div class="muted">Not enough customers per segment yet.</div>', unsafe_allow_html=True)
+        else:
+            if dim == "Customer value":
+                seg["Segment"] = pd.Categorical(seg.Segment, ["High value", "Mid value", "Low value"], ordered=True)
+                seg = seg.sort_values("Segment")
+            sb = alt.Chart(seg).encode(y=alt.Y("Segment:N", title=None, sort=list(seg.Segment.astype(str))))
+            err = sb.mark_rule(color="#8A94A6", strokeWidth=1.5).encode(x=alt.X("low:Q", title="Uplift in conversion rate, percentage points (with 95% range)", axis=alt.Axis(tickCount=6, format=".1f")), x2="high:Q")
+            dot = sb.mark_point(filled=True, size=110, color=TEST).encode(
+                x="Uplift (pts):Q",
+                tooltip=[alt.Tooltip("Segment:N"), alt.Tooltip("Uplift (pts):Q", format=".2f"),
+                         alt.Tooltip("Test CR:Q", format=".2%"), alt.Tooltip("Control CR:Q", format=".2%"),
+                         alt.Tooltip("Customers:Q", format=",")])
+            zero = alt.Chart(pd.DataFrame({"x": [0]})).mark_rule(color="#172033", strokeDash=[3, 3]).encode(x="x:Q")
+            st.altair_chart((err + dot + zero).properties(height=46 * len(seg) + 40).configure_view(strokeWidth=0)
+                            .configure_axis(labelColor="#5E6A7D", domainColor="#DCE1E8", gridColor="#E6E9EE"),
+                            use_container_width=True)
+            st.markdown('<div class="muted">A wide range means too few customers in that segment to be sure. Ranges that '
+                        'cross the dashed zero line are not yet distinguishable from no effect.</div>', unsafe_allow_html=True)
+
+        # ---- campaign table
+        st.markdown('<div class="sect">Campaigns</div>', unsafe_allow_html=True)
         rows = []
         for k, v in sent.items():
-            L = v["lift"]
-            rows.append({"Campaign": k.replace("→", " to "), "Channel": CHANNEL[v["action"].channel],
-                         "Discount": "None" if v["action"].discount == 0 else f"{v['action'].discount:.0%}",
-                         "Contacted": L["treated"], "Held back": L["holdout"],
-                         "Bought, contacted": f"{L['conversion_treated']:.1%}", "Bought, held back": f"{L['conversion_holdout']:.1%}",
-                         "Extra margin (AED)": f"{L['incremental_gross_margin_aed']:,.0f}",
-                         "Likely range (AED)": f"{L['ci95_total_aed'][0]:,.0f} to {L['ci95_total_aed'][1]:,.0f}",
-                         "Verdict": "Clear result" if L["significant"] else
-                         ("Not clear yet" if v["measurable"] else "Too small to judge alone")})
-        st.markdown('<div class="sect">Each campaign</div>', unsafe_allow_html=True)
-        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
-        st.markdown('<div class="muted">A single campaign often reaches too few people to judge on its own. The overall '
-                    'result pools everyone contacted against everyone held back, including the permanent 10% comparison '
-                    'group.</div>', unsafe_allow_html=True)
+            L, a = v["lift"], v["action"]
+            rows.append({"Campaign": k.replace("→", " to "), "Channel": CHANNEL[a.channel],
+                         "Offer": "No discount" if a.discount == 0 else f"{a.discount:.0%} off",
+                         "Test": L["treated"], "Control": L["holdout"],
+                         "CR test": L["cr_test"], "CR control": L["cr_control"], "Uplift (pts)": L["uplift_pp"],
+                         "Incr. margin (AED)": L["incremental_gross_margin_aed"],
+                         "ROI": L["roi"],
+                         "Read": ("Significant" if L["p_value"] < 0.05 else
+                                  "Directional" if not v["measurable"] else "Not significant") + (" (p < 0.01)" if L["p_value"] < 0.01 else f" (p = {L['p_value']:.2f})")})
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True, column_config={
+            "Campaign": st.column_config.TextColumn(width="medium"),
+            "CR test": st.column_config.NumberColumn(format="percent"),
+            "CR control": st.column_config.NumberColumn(format="percent"),
+            "Uplift (pts)": st.column_config.NumberColumn(format="%.1f"),
+            "Incr. margin (AED)": st.column_config.NumberColumn(format="localized"),
+            "ROI": st.column_config.NumberColumn(format="%.1f×"),
+            "Test": st.column_config.NumberColumn(format="localized"),
+            "Control": st.column_config.NumberColumn(format="localized")})
+        st.markdown('<div class="muted">Directional: the campaign was too small to judge on its own, so it counts toward '
+                    'the overall result above. ROI assumes AED 500 of setup per campaign plus AED 0.01 per email, 0.12 per SMS '
+                    'and 0.25 per WhatsApp message. 12-month value is projected from how past cross-store customers spent at that store.'
+                    '</div>', unsafe_allow_html=True)
 
-        with st.expander("Test: did the measurement find the true effect? (possible only because the data is synthetic)"):
+        with st.expander("Model check: did the measurement recover the true effect? (only possible with synthetic data)"):
             ev = []
             for k, v in sent.items():
                 truth = E.true_incremental_margin_per_customer(eng, v["action"]) * v["lift"]["treated"]
@@ -344,7 +486,7 @@ with tab_results:
             st.dataframe(pd.DataFrame(ev), hide_index=True, use_container_width=True)
             planted = set(TRUTH.true_pairs())
             found = sum((o["from_brand"], o["to_brand"]) in planted for o in opps)
-            st.markdown(f"Of the Analyst's {len(opps)} picks, **{found}** are store pairs we deliberately built into the data.")
+            st.markdown(f"Of the Analyst's {len(opps)} picks, **{found}** are store pairs deliberately built into the data.")
 
 # ------------------------------------------------------------------ about
 with tab_about:

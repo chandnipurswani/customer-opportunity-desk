@@ -29,6 +29,10 @@ POLICY = {
     "z_alpha": 1.96,               # 95% confidence
     "channels": ["email", "sms", "app_push", "whatsapp"],
 }
+# Cost per message sent (AED), working assumptions for ROI: typical GCC rates, to replace with real contracts
+SEND_COST = {"email": 0.01, "sms": 0.12, "app_push": 0.0, "whatsapp": 0.25}
+CAMPAIGN_FIXED_COST = 500.0   # AED per campaign: creative, translation and setup time (working assumption)
+
 # Planning assumption (would come from the group's past campaign tests; synthetic here):
 # uplift ~ a little per point of affinity lift + a fixed amount per point of discount.
 PLANNING = {"uplift_per_lift_point": 0.010, "uplift_per_discount": 0.10}  # deliberately ~30% conservative vs reality
@@ -64,6 +68,8 @@ class Engine:
         self.active = last <= ACTIVE_DAYS
         # deterministic, effectively random assignment by customer id (stable across runs)
         ids = self.customers.index.to_numpy()
+        spend12 = self.tx[self.tx.days_ago <= 365].groupby("customer_id").amount_aed.sum().reindex(self.customers.index, fill_value=0)
+        self.value_tier = pd.qcut(spend12.rank(method="first"), 3, labels=["Low value", "Mid value", "High value"]).astype(str)
         self.global_holdout = pd.Series((ids * 2654435761 % 1000) < POLICY["global_holdout"] * 1000, index=self.customers.index)
 
     # ------------------------------------------------------------------ tools
@@ -187,6 +193,19 @@ class Engine:
                 "discount_premium_over_best_no_discount_aed": (round(best["expected_incremental_gross_margin_aed"]
                     - best_nd["expected_incremental_gross_margin_aed"], 0) if best and best_nd else None)}
 
+    def store_12m_margin_per_new_customer(self, store: str) -> float:
+        """Historical: average gross margin a cross-store customer (home store elsewhere) generates at `store` in the
+        12 months after their first purchase there (first purchase at least 12 months ago). Used to project customer lifetime value."""
+        t = self.tx[self.tx.brand == store]
+        first = t.groupby("customer_id").days_ago.max()
+        crossers = self.customers.index[self.customers.home_brand != store]
+        first = first[first.index.isin(crossers)]          # only customers who crossed over from another store
+        cohort = first[first >= 365].index
+        tc = t[t.customer_id.isin(cohort)].merge(first.rename("first"), left_on="customer_id", right_index=True)
+        win = tc[tc["first"] - tc.days_ago <= 365]
+        spend = win.groupby("customer_id").amount_aed.sum().mean()
+        return float(spend * self.brands.loc[store].gross_margin) if len(cohort) else 0.0
+
     # ------------------------------------------------------------------ after approval (not agent tools)
     def eligible_ids(self, from_brand: str, to_brand: str, channel: str) -> np.ndarray:
         c = self.customers.loc[self._audience(from_brand, to_brand)]
@@ -227,8 +246,18 @@ def simulate_send(engine: Engine, action: Action, seed: int = 11) -> pd.DataFram
     basket = np.where(converted, tb.avg_basket * rng.lognormal(0, 0.35, len(ids)), 0.0)
     discount = np.where(treated, action.discount, 0.0)
     margin = basket * (tb.gross_margin - discount)
+    # day of first purchase at the new store within the 90-day window (responses cluster early after a send)
+    scale = np.where(treated, 18.0, 40.0)            # truncated exponential within the 90-day window
+    u = rng.random(len(ids)) * (1 - np.exp(-90 / scale))
+    day = np.where(converted, np.clip(np.ceil(-scale * np.log(1 - u)), 1, 90), np.nan)
+    c = engine.customers.loc[ids]
     return pd.DataFrame({"customer_id": ids, "treated": treated, "global_holdout": in_global, "converted": converted,
-                         "basket_aed": basket.round(2), "gross_margin_aed": margin.round(2)})
+                         "conversion_day": day, "basket_aed": basket.round(2),
+                         "discount_aed": (basket * discount).round(2), "gross_margin_aed": margin.round(2),
+                         "city": c.city.values, "language": c.language.map({"en": "English", "ar": "Arabic"}).values,
+                         "value_tier": engine.value_tier.reindex(ids).values,
+                         "channel": action.channel, "campaign": f"{action.from_brand} to {action.to_brand}",
+                         "to_store": action.to_brand})
 
 
 def measure_lift(results: pd.DataFrame) -> dict:
@@ -237,7 +266,25 @@ def measure_lift(results: pd.DataFrame) -> dict:
     diff = t.gross_margin_aed.mean() - h.gross_margin_aed.mean()
     se = np.sqrt(t.gross_margin_aed.var() / len(t) + h.gross_margin_aed.var() / len(h))
     n_t = len(t)
+    from statistics import NormalDist
+    p_value = 2 * (1 - NormalDist().cdf(abs(diff) / se)) if se > 0 else 1.0
+    cr_t, cr_h = float(t.converted.mean()), float(h.converted.mean())
+    rev_diff = t.basket_aed.mean() - h.basket_aed.mean() if "basket_aed" in t else 0.0
+    disc = float(t.discount_aed.sum()) if "discount_aed" in t else 0.0
+    ch = t.channel.iloc[0] if "channel" in t and len(t) and t.channel.nunique() == 1 else None
+    send = float(sum(SEND_COST.get(c, 0) for c in t.channel)) if "channel" in t else 0.0
+    n_campaigns = t.campaign.nunique() if "campaign" in t else 1
+    cost = disc + send + CAMPAIGN_FIXED_COST * n_campaigns
     return {
+        "p_value": round(float(p_value), 4),
+        "cr_test": round(cr_t, 4), "cr_control": round(cr_h, 4),
+        "uplift_pp": round((cr_t - cr_h) * 100, 2),
+        "relative_uplift": round(cr_t / cr_h - 1, 2) if cr_h > 0 else None,
+        "incremental_customers": round((cr_t - cr_h) * n_t, 1),
+        "incremental_revenue_aed": round(float(rev_diff * n_t), 0),
+        "discount_cost_aed": round(disc, 0), "send_cost_aed": round(send, 2),
+        "roi": round(float(diff * n_t) / cost, 1) if cost > 0 else None,
+        "channel": ch,
         "treated": int(n_t), "holdout": int(len(h)),
         "conversion_treated": round(float(t.converted.mean()), 4),
         "conversion_holdout": round(float(h.converted.mean()), 4),
