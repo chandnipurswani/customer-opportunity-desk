@@ -104,10 +104,14 @@ def get_engine():
 
 
 def load_saved():
+    """Most recent saved run that matches the current store names (older runs are skipped, never shown broken)."""
+    stores = set(generate.__globals__["B"])
     for name in ("latest", "mock"):
         p = RUNS / f"{name}.json"
         if p.exists():
-            return json.loads(p.read_text(encoding="utf-8")), name
+            c = json.loads(p.read_text(encoding="utf-8"))
+            if all(o["from_brand"] in stores for o in c["analyst"]["output"]["opportunities"]):
+                return c, name
     return None, None
 
 
