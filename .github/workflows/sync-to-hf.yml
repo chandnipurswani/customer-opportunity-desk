@@ -17,6 +17,11 @@ jobs:
           HF_USER: cdp336
           SPACE: customer-opportunity-desk
         run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::The HF_TOKEN secret is missing or empty. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          echo "HF_TOKEN is set (${#HF_TOKEN} characters; a Hugging Face token starts with hf_ and is about 37 long)"
           cp hf/README.md README.md
           rm -rf .git && git init -q -b main
           git config user.email "deploy@users.noreply.github.com" && git config user.name "deploy"
